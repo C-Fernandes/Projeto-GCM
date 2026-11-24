@@ -47,4 +47,27 @@ class ProdutoControllerTest {
     void produtoInexistenteRetorna404() throws Exception {
         mvc.perform(get("/loja/produto/999999/estoque")).andExpect(status().isNotFound());
     }
+    @Test
+    void retornaErroEstruturadoParaValidacaoEConflito() throws Exception {
+        mvc.perform(post("/loja/produto").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.mensagem").isNotEmpty());
+        String produto = "{\"codigo\":103,\"preco\":10}";
+        mvc.perform(post("/loja/produto").contentType(MediaType.APPLICATION_JSON).content(produto)).andExpect(status().isCreated());
+        mvc.perform(post("/loja/produto").contentType(MediaType.APPLICATION_JSON).content(produto))
+                .andExpect(status().isConflict()).andExpect(jsonPath("$.status").value(409));
+        mvc.perform(get("/loja/produto/999998/estoque"))
+                .andExpect(status().isNotFound()).andExpect(jsonPath("$.status").value(404));
+    }
+
+    @Test
+    void documentaAsOperacoesNoOpenApi() throws Exception {
+        mvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.paths['/loja/produto'].post.responses['201']").exists())
+                .andExpect(jsonPath("$.paths['/loja/produto'].post.responses['400']").exists())
+                .andExpect(jsonPath("$.paths['/loja/produto'].post.responses['409']").exists())
+                .andExpect(jsonPath("$.paths['/loja/produto/{codigo}/estoque'].get.responses['404']").exists());
+        mvc.perform(get("/swagger-ui/index.html")).andExpect(status().isOk());
+    }
 }

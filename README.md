@@ -36,3 +36,7 @@ O retorno ? `200` com `codigo` e `estoque`, ou `404` se o produto n?o existir.
 ```sh
 mvn verify
 ```
+
+## Documenta??o da API
+
+Com a aplica??o em execu??o, acesse http://localhost:8080/swagger-ui.html para consultar e testar os endpoints. A descri??o OpenAPI em JSON est? em http://localhost:8080/v3/api-docs. Erros retornam um objeto com `status` e `mensagem`.
