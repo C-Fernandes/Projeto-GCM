@@ -1,4 +1,4 @@
-package br.edu.gcm;
+package br.edu.gcm.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

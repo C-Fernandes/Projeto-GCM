@@ -1,4 +1,4 @@
-package br.edu.gcm;
+package br.edu.gcm.model;
 
 import java.math.BigDecimal;
 

@@ -70,4 +70,12 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$.paths['/loja/produto/{codigo}/estoque'].get.responses['404']").exists());
         mvc.perform(get("/swagger-ui/index.html")).andExpect(status().isOk());
     }
+    @Test
+    void textosDaApiPreservamAcentuacao() throws Exception {
+        mvc.perform(post("/loja/produto").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(jsonPath("$.mensagem").value("Requisi\u00e7\u00e3o inv\u00e1lida: informe os campos obrigat\u00f3rios com tipos v\u00e1lidos."));
+        mvc.perform(get("/v3/api-docs"))
+                .andExpect(jsonPath("$.components.schemas.ProdutoCadastroDTO.properties.codigo.description")
+                        .value("C\u00f3digo inteiro do produto"));
+    }
 }

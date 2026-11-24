@@ -1,5 +1,6 @@
-package br.edu.gcm;
+package br.edu.gcm.exception;
 
+import br.edu.gcm.dto.ErroDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -12,7 +13,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 public class ApiExceptionHandler {
     @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
     public ResponseEntity<ErroDTO> requisicaoInvalida(Exception exception) {
-        return erro(HttpStatus.BAD_REQUEST, "Requisi??o inv?lida: informe os campos obrigat?rios com tipos v?lidos.");
+        return erro(HttpStatus.BAD_REQUEST, "Requisição inválida: informe os campos obrigatórios com tipos válidos.");
     }
     @ExceptionHandler(ProdutoDuplicadoException.class)
     public ResponseEntity<ErroDTO> duplicado(ProdutoDuplicadoException exception) {

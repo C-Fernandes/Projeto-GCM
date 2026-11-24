@@ -1,6 +1,6 @@
 # Projeto-GCM
 
-API Java da disciplina de Gerenciamento de Configura??o e Mudan?as. O armazenamento ? em mem?ria e os produtos s?o perdidos ao encerrar a aplica??o.
+API Java da disciplina de Gerenciamento de Configuração e Mudanças. O armazenamento é em memória e os produtos são perdidos ao encerrar a aplicação.
 
 ## Requisitos
 
@@ -13,7 +13,7 @@ API Java da disciplina de Gerenciamento de Configura??o e Mudan?as. O armazename
 mvn spring-boot:run
 ```
 
-A API fica dispon?vel em `http://localhost:8080`.
+A API fica disponível em `http://localhost:8080`.
 
 Para cadastrar um produto:
 
@@ -21,7 +21,7 @@ Para cadastrar um produto:
 curl -i -X POST http://localhost:8080/loja/produto -H "Content-Type: application/json" -d '{"codigo":1,"preco":12.50}'
 ```
 
-O retorno ? `201` com `codigo`, `preco` e `estoque` inicial igual a zero. Campos obrigat?rios ausentes ou com tipo inv?lido retornam `400`; c?digo j? cadastrado retorna `409`.
+O retorno é `201` com `codigo`, `preco` e `estoque` inicial igual a zero. Campos obrigatórios ausentes ou com tipo inválido retornam `400`; código já cadastrado retorna `409`.
 
 Para consultar o estoque:
 
@@ -29,7 +29,7 @@ Para consultar o estoque:
 curl -i http://localhost:8080/loja/produto/1/estoque
 ```
 
-O retorno ? `200` com `codigo` e `estoque`, ou `404` se o produto n?o existir.
+O retorno é `200` com `codigo` e `estoque`, ou `404` se o produto não existir.
 
 ## Testar
 
@@ -37,6 +37,6 @@ O retorno ? `200` com `codigo` e `estoque`, ou `404` se o produto n?o existir.
 mvn verify
 ```
 
-## Documenta??o da API
+## Documentação da API
 
-Com a aplica??o em execu??o, acesse http://localhost:8080/swagger-ui.html para consultar e testar os endpoints. A descri??o OpenAPI em JSON est? em http://localhost:8080/v3/api-docs. Erros retornam um objeto com `status` e `mensagem`.
+Com a aplicação em execução, acesse http://localhost:8080/swagger-ui.html para consultar e testar os endpoints. A descrição OpenAPI em JSON está em http://localhost:8080/v3/api-docs. Erros retornam um objeto com `status` e `mensagem`.

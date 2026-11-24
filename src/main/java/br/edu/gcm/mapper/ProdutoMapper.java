@@ -1,5 +1,9 @@
-package br.edu.gcm;
+package br.edu.gcm.mapper;
 
+import br.edu.gcm.model.Produto;
+import br.edu.gcm.dto.ProdutoCadastroDTO;
+import br.edu.gcm.dto.ProdutoDTO;
+import br.edu.gcm.dto.EstoqueDTO;
 import org.springframework.stereotype.Component;
 
 @Component
