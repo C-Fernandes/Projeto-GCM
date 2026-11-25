@@ -47,6 +47,14 @@ curl -i -X PUT http://localhost:8080/loja/produto/1/saida -H "Content-Type: appl
 
 O retorno é `200` com `codigo` e o `estoque` já descontado. Quantidade ausente, não inteira, menor que 1 ou maior que o estoque atual retorna `400`. Produto inexistente retorna `404`. Em qualquer erro, o estoque fica como estava.
 
+Para registrar uma venda:
+
+```sh
+curl -i -X POST http://localhost:8080/loja/venda -H "Content-Type: application/json" -d '{"itens":[{"codigo":1,"quantidade":2}]}'
+```
+
+O retorno é `201` com o `total` da venda e, para cada item, `codigo`, `quantidade`, `subtotal` (`preco × quantidade`) e o `estoque` depois da saída. Lista de itens ausente ou vazia, item com campo inválido ou estoque insuficiente retorna `400`. Produto inexistente retorna `404`. A venda é tudo ou nada: se um item der erro, nenhum estoque muda.
+
 ## Testar
 
 ```sh
