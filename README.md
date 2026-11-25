@@ -39,6 +39,14 @@ curl -i -X PUT http://localhost:8080/loja/produto/1/entrada -H "Content-Type: ap
 
 O retorno é `200` com `codigo` e o `estoque` já somado. Quantidade ausente, não inteira ou menor que 1 retorna `400`. Produto inexistente retorna `404`.
 
+Para dar saída no estoque:
+
+```sh
+curl -i -X PUT http://localhost:8080/loja/produto/1/saida -H "Content-Type: application/json" -d '{"quantidade":4}'
+```
+
+O retorno é `200` com `codigo` e o `estoque` já descontado. Quantidade ausente, não inteira, menor que 1 ou maior que o estoque atual retorna `400`. Produto inexistente retorna `404`. Em qualquer erro, o estoque fica como estava.
+
 ## Testar
 
 ```sh

@@ -1,5 +1,6 @@
 package br.edu.gcm.model;
 
+import br.edu.gcm.exception.EstoqueInsuficienteException;
 import java.math.BigDecimal;
 
 public class Produto {
@@ -19,6 +20,11 @@ public class Produto {
 
     public Produto comEntrada(int quantidade) {
         return new Produto(codigo, preco, Math.addExact(estoque, quantidade));
+    }
+
+    public Produto comSaida(int quantidade) {
+        if (quantidade > estoque) throw new EstoqueInsuficienteException();
+        return new Produto(codigo, preco, estoque - quantidade);
     }
 
     public Integer getCodigo() { return codigo; }

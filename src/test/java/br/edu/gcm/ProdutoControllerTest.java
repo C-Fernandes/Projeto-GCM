@@ -122,4 +122,66 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$.paths['/loja/produto/{codigo}/entrada'].put.responses['400']").exists())
                 .andExpect(jsonPath("$.paths['/loja/produto/{codigo}/entrada'].put.responses['404']").exists());
     }
+
+    @Test
+    void saidaSubtraiDoEstoqueAtual() throws Exception {
+        mvc.perform(post("/loja/produto").contentType(MediaType.APPLICATION_JSON).content("{\"codigo\":301,\"preco\":10}"))
+                .andExpect(status().isCreated());
+        mvc.perform(put("/loja/produto/301/entrada").contentType(MediaType.APPLICATION_JSON).content("{\"quantidade\":15}"))
+                .andExpect(status().isOk());
+        mvc.perform(put("/loja/produto/301/saida").contentType(MediaType.APPLICATION_JSON).content("{\"quantidade\":10}"))
+                .andExpect(status().isOk()).andExpect(content().json("{\"codigo\":301,\"estoque\":5}", true));
+        mvc.perform(put("/loja/produto/301/saida").contentType(MediaType.APPLICATION_JSON).content("{\"quantidade\":5}"))
+                .andExpect(status().isOk()).andExpect(content().json("{\"codigo\":301,\"estoque\":0}", true));
+        mvc.perform(get("/loja/produto/301/estoque"))
+                .andExpect(status().isOk()).andExpect(content().json("{\"codigo\":301,\"estoque\":0}", true));
+    }
+
+    @Test
+    void saidaEmProdutoInexistenteRetorna404() throws Exception {
+        mvc.perform(put("/loja/produto/999996/saida").contentType(MediaType.APPLICATION_JSON).content("{\"quantidade\":10}"))
+                .andExpect(status().isNotFound()).andExpect(jsonPath("$.status").value(404));
+    }
+
+    @Test
+    void saidaRejeitaQuantidadeAusenteOuInvalidaSemAlterarEstoque() throws Exception {
+        mvc.perform(post("/loja/produto").contentType(MediaType.APPLICATION_JSON).content("{\"codigo\":302,\"preco\":10}"))
+                .andExpect(status().isCreated());
+        mvc.perform(put("/loja/produto/302/entrada").contentType(MediaType.APPLICATION_JSON).content("{\"quantidade\":10}"))
+                .andExpect(status().isOk());
+        for (String body : new String[]{"{}", "{\"quantidade\":null}", "{\"quantidade\":\"5\"}", "{\"quantidade\":1.5}",
+                "{\"quantidade\":2147483648}", "{\"quantidade\":0}", "{\"quantidade\":-5}", "[]", "{"}) {
+            mvc.perform(put("/loja/produto/302/saida").contentType(MediaType.APPLICATION_JSON).content(body))
+                    .andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400));
+        }
+        mvc.perform(put("/loja/produto/302/saida").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
+        mvc.perform(put("/loja/produto/abc/saida").contentType(MediaType.APPLICATION_JSON).content("{\"quantidade\":5}"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(get("/loja/produto/302/estoque"))
+                .andExpect(status().isOk()).andExpect(content().json("{\"codigo\":302,\"estoque\":10}", true));
+    }
+
+    @Test
+    void saidaMaiorQueOEstoqueRetorna400SemAlterarEstoque() throws Exception {
+        mvc.perform(post("/loja/produto").contentType(MediaType.APPLICATION_JSON).content("{\"codigo\":303,\"preco\":10}"))
+                .andExpect(status().isCreated());
+        mvc.perform(put("/loja/produto/303/saida").contentType(MediaType.APPLICATION_JSON).content("{\"quantidade\":1}"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(put("/loja/produto/303/entrada").contentType(MediaType.APPLICATION_JSON).content("{\"quantidade\":5}"))
+                .andExpect(status().isOk());
+        mvc.perform(put("/loja/produto/303/saida").contentType(MediaType.APPLICATION_JSON).content("{\"quantidade\":6}"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.mensagem").value("Estoque insuficiente para a saída."));
+        mvc.perform(get("/loja/produto/303/estoque"))
+                .andExpect(status().isOk()).andExpect(content().json("{\"codigo\":303,\"estoque\":5}", true));
+    }
+
+    @Test
+    void documentaSaidaNoOpenApi() throws Exception {
+        mvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.paths['/loja/produto/{codigo}/saida'].put.responses['200']").exists())
+                .andExpect(jsonPath("$.paths['/loja/produto/{codigo}/saida'].put.responses['400']").exists())
+                .andExpect(jsonPath("$.paths['/loja/produto/{codigo}/saida'].put.responses['404']").exists());
+    }
 }
