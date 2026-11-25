@@ -61,6 +61,9 @@ O retorno é `201` com o `total` da venda e, para cada item, `codigo`, `quantida
 mvn verify
 ```
 
+- `ProdutoServiceTest`: testes unitários da camada de serviço, chamando as cinco operações direto, sem a API.
+- `ProdutoControllerTest` e `VendaControllerTest`: testes da API REST, cobrindo sucesso, códigos `200`, `201`, `400`, `404` e `409`, estoque após cada operação e atomicidade da venda.
+
 ## Documentação da API
 
 Com a aplicação em execução, acesse http://localhost:8080/swagger-ui.html para consultar e testar os endpoints. A descrição OpenAPI em JSON está em http://localhost:8080/v3/api-docs. Erros retornam um objeto com `status` e `mensagem`.

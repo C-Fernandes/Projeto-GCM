@@ -177,6 +177,25 @@ class ProdutoControllerTest {
     }
 
     @Test
+    void cadastroRejeitaPrecoNegativo() throws Exception {
+        mvc.perform(post("/loja/produto").contentType(MediaType.APPLICATION_JSON).content("{\"codigo\":501,\"preco\":-1}"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400));
+        mvc.perform(get("/loja/produto/501/estoque")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void entradaQueEstouraOLimiteDoEstoqueRetorna400SemAlterarEstoque() throws Exception {
+        mvc.perform(post("/loja/produto").contentType(MediaType.APPLICATION_JSON).content("{\"codigo\":502,\"preco\":1}"))
+                .andExpect(status().isCreated());
+        mvc.perform(put("/loja/produto/502/entrada").contentType(MediaType.APPLICATION_JSON).content("{\"quantidade\":2147483647}"))
+                .andExpect(status().isOk());
+        mvc.perform(put("/loja/produto/502/entrada").contentType(MediaType.APPLICATION_JSON).content("{\"quantidade\":1}"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400));
+        mvc.perform(get("/loja/produto/502/estoque"))
+                .andExpect(status().isOk()).andExpect(content().json("{\"codigo\":502,\"estoque\":2147483647}", true));
+    }
+
+    @Test
     void documentaSaidaNoOpenApi() throws Exception {
         mvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
