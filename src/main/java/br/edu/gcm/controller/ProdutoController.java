@@ -60,4 +60,15 @@ public class ProdutoController {
     public EstoqueDTO entrada(@PathVariable Integer codigo, @Valid @RequestBody MovimentacaoEstoqueDTO dados) {
         return mapper.paraEstoqueDTO(service.entrada(codigo, dados.quantidade()));
     }
+
+    @Operation(summary = "Registrar saída de estoque", description = "Subtrai a quantidade informada do estoque atual do produto. Se der erro, o estoque não muda.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Estoque atualizado", content = @Content(schema = @Schema(implementation = EstoqueDTO.class))),
+        @ApiResponse(responseCode = "400", description = "Quantidade ausente, não inteira, menor que 1 ou maior que o estoque", content = @Content(schema = @Schema(implementation = ErroDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Produto não encontrado", content = @Content(schema = @Schema(implementation = ErroDTO.class)))
+    })
+    @PutMapping("/{codigo}/saida")
+    public EstoqueDTO saida(@PathVariable Integer codigo, @Valid @RequestBody MovimentacaoEstoqueDTO dados) {
+        return mapper.paraEstoqueDTO(service.saida(codigo, dados.quantidade()));
+    }
 }

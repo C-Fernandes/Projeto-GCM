@@ -23,6 +23,10 @@ public class ApiExceptionHandler {
     public ResponseEntity<ErroDTO> naoEncontrado(ProdutoNaoEncontradoException exception) {
         return erro(HttpStatus.NOT_FOUND, exception.getMessage());
     }
+    @ExceptionHandler(EstoqueInsuficienteException.class)
+    public ResponseEntity<ErroDTO> estoqueInsuficiente(EstoqueInsuficienteException exception) {
+        return erro(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
     private ResponseEntity<ErroDTO> erro(HttpStatus status, String mensagem) {
         return ResponseEntity.status(status).body(new ErroDTO(status.value(), mensagem));
     }
