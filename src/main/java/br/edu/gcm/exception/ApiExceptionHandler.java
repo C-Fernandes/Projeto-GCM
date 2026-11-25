@@ -27,6 +27,10 @@ public class ApiExceptionHandler {
     public ResponseEntity<ErroDTO> estoqueInsuficiente(EstoqueInsuficienteException exception) {
         return erro(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
+    @ExceptionHandler(DadosInvalidosException.class)
+    public ResponseEntity<ErroDTO> dadosInvalidos(DadosInvalidosException exception) {
+        return erro(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
     private ResponseEntity<ErroDTO> erro(HttpStatus status, String mensagem) {
         return ResponseEntity.status(status).body(new ErroDTO(status.value(), mensagem));
     }
