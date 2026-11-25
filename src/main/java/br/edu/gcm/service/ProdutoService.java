@@ -23,4 +23,10 @@ public class ProdutoService {
         if (produto == null) throw new ProdutoNaoEncontradoException();
         return produto;
     }
+
+    public Produto entrada(Integer codigo, int quantidade) {
+        Produto produto = produtos.computeIfPresent(codigo, (chave, atual) -> atual.comEntrada(quantidade));
+        if (produto == null) throw new ProdutoNaoEncontradoException();
+        return produto;
+    }
 }

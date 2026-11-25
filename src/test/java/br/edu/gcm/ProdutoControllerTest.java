@@ -2,6 +2,7 @@ package br.edu.gcm;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.junit.jupiter.api.Test;
@@ -77,5 +78,48 @@ class ProdutoControllerTest {
         mvc.perform(get("/v3/api-docs"))
                 .andExpect(jsonPath("$.components.schemas.ProdutoCadastroDTO.properties.codigo.description")
                         .value("C\u00f3digo inteiro do produto"));
+    }
+
+    @Test
+    void entradaAcrescentaAoEstoqueAtual() throws Exception {
+        mvc.perform(post("/loja/produto").contentType(MediaType.APPLICATION_JSON).content("{\"codigo\":201,\"preco\":10}"))
+                .andExpect(status().isCreated());
+        mvc.perform(put("/loja/produto/201/entrada").contentType(MediaType.APPLICATION_JSON).content("{\"quantidade\":10}"))
+                .andExpect(status().isOk()).andExpect(content().json("{\"codigo\":201,\"estoque\":10}", true));
+        mvc.perform(put("/loja/produto/201/entrada").contentType(MediaType.APPLICATION_JSON).content("{\"quantidade\":15}"))
+                .andExpect(status().isOk()).andExpect(content().json("{\"codigo\":201,\"estoque\":25}", true));
+        mvc.perform(get("/loja/produto/201/estoque"))
+                .andExpect(status().isOk()).andExpect(content().json("{\"codigo\":201,\"estoque\":25}", true));
+    }
+
+    @Test
+    void entradaEmProdutoInexistenteRetorna404() throws Exception {
+        mvc.perform(put("/loja/produto/999997/entrada").contentType(MediaType.APPLICATION_JSON).content("{\"quantidade\":10}"))
+                .andExpect(status().isNotFound()).andExpect(jsonPath("$.status").value(404));
+    }
+
+    @Test
+    void entradaRejeitaQuantidadeAusenteOuInvalidaSemAlterarEstoque() throws Exception {
+        mvc.perform(post("/loja/produto").contentType(MediaType.APPLICATION_JSON).content("{\"codigo\":202,\"preco\":10}"))
+                .andExpect(status().isCreated());
+        for (String body : new String[]{"{}", "{\"quantidade\":null}", "{\"quantidade\":\"10\"}", "{\"quantidade\":1.5}",
+                "{\"quantidade\":2147483648}", "{\"quantidade\":0}", "{\"quantidade\":-5}", "[]", "{"}) {
+            mvc.perform(put("/loja/produto/202/entrada").contentType(MediaType.APPLICATION_JSON).content(body))
+                    .andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400));
+        }
+        mvc.perform(put("/loja/produto/202/entrada").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
+        mvc.perform(put("/loja/produto/abc/entrada").contentType(MediaType.APPLICATION_JSON).content("{\"quantidade\":10}"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(get("/loja/produto/202/estoque"))
+                .andExpect(status().isOk()).andExpect(content().json("{\"codigo\":202,\"estoque\":0}", true));
+    }
+
+    @Test
+    void documentaEntradaNoOpenApi() throws Exception {
+        mvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.paths['/loja/produto/{codigo}/entrada'].put.responses['200']").exists())
+                .andExpect(jsonPath("$.paths['/loja/produto/{codigo}/entrada'].put.responses['400']").exists())
+                .andExpect(jsonPath("$.paths['/loja/produto/{codigo}/entrada'].put.responses['404']").exists());
     }
 }
