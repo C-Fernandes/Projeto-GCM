@@ -31,6 +31,14 @@ curl -i http://localhost:8080/loja/produto/1/estoque
 
 O retorno é `200` com `codigo` e `estoque`, ou `404` se o produto não existir.
 
+Para dar entrada no estoque:
+
+```sh
+curl -i -X PUT http://localhost:8080/loja/produto/1/entrada -H "Content-Type: application/json" -d '{"quantidade":10}'
+```
+
+O retorno é `200` com `codigo` e o `estoque` já somado. Quantidade ausente, não inteira ou menor que 1 retorna `400`. Produto inexistente retorna `404`.
+
 ## Testar
 
 ```sh

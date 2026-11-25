@@ -6,6 +6,7 @@ import br.edu.gcm.dto.ProdutoCadastroDTO;
 import br.edu.gcm.dto.ProdutoDTO;
 import br.edu.gcm.dto.EstoqueDTO;
 import br.edu.gcm.dto.ErroDTO;
+import br.edu.gcm.dto.MovimentacaoEstoqueDTO;
 import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -47,5 +48,16 @@ public class ProdutoController {
     @GetMapping("/{codigo}/estoque")
     public EstoqueDTO consultarEstoque(@PathVariable Integer codigo) {
         return mapper.paraEstoqueDTO(service.buscar(codigo));
+    }
+
+    @Operation(summary = "Registrar entrada de estoque", description = "Soma a quantidade informada ao estoque atual do produto.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Estoque atualizado", content = @Content(schema = @Schema(implementation = EstoqueDTO.class))),
+        @ApiResponse(responseCode = "400", description = "Quantidade ausente, não inteira ou menor que 1", content = @Content(schema = @Schema(implementation = ErroDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Produto não encontrado", content = @Content(schema = @Schema(implementation = ErroDTO.class)))
+    })
+    @PutMapping("/{codigo}/entrada")
+    public EstoqueDTO entrada(@PathVariable Integer codigo, @Valid @RequestBody MovimentacaoEstoqueDTO dados) {
+        return mapper.paraEstoqueDTO(service.entrada(codigo, dados.quantidade()));
     }
 }
